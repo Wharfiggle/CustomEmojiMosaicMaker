@@ -107,7 +107,7 @@ function rgb(r, g, b)
 
 module.exports = 
 {
-	publicCommand: true,
+	publicCommand: true, //WILL BE DEPLOYED GLOBALLY
 	cooldown: 10,
 	data: new SlashCommandBuilder().setName("make").setDescription("Makes a mosaic of the specified image given a list of emojis.")
 		.addAttachmentOption(option =>
@@ -272,7 +272,7 @@ module.exports =
 		const context = canvas.getContext("2d");
 
 		//create random but uniform samples of the image, each point around sampleRadius pixels apart
-		var samples = [];
+		const samples = [];
 		const sampler = poissonDiscSampler(goalImage.width, goalImage.height, sampleRadius);
 		var sample;
 		while(sample = sampler())
@@ -284,7 +284,7 @@ module.exports =
 			//console.log(sample[0] + ", " + sample[1]);
 		}
 
-		var si = 0;
+		//var si = 0; //count samples for debug
 		for(var s of samples)
 		{
 			//get the average color of the area of size colorSampleSize around the sample
@@ -309,14 +309,14 @@ module.exports =
 
 			//random index of emoji to use
 			const rn = Math.floor(Math.random() * emojiImages.length);
-			//tint gets stronger the closer sampleColor is to white or black
+			//tint gets stronger when color is farther from emoji's average color and when color is closer to white or black
 			const emojiColorDif = Math.abs((r - emojiAvgColors[rn][0] + g - emojiAvgColors[rn][1] + b - emojiAvgColors[rn][2])) / 255;
 			const valueIntensity = Math.abs((r - 127.5 + g - 127.5 + b - 127.5)) / 127.5;
 			var tint = tintStrength + (1 - tintStrength) * (emojiColorDif * 3/4 + valueIntensity * 1/4);
-			//draw emoji with random rotation at sample location with sampleColor as tint
+			//draw emoji with random rotation at sample location with sampleColor as tint color and tint as tint opacity
 			const emojiImage = tintImage(emojiImages[rn], sampleColor, tint);
 			drawImageRotated(context, emojiImage, s[0] - emojiSize / 2, s[1] - emojiSize / 2, emojiSize, emojiSize, Math.random() * 360, userImageRatio);
-			si++;
+			//si++;
 			//console.log(si + " / " + samples.length);
 		}
 		
@@ -329,7 +329,7 @@ module.exports =
 		}*/
 
 		// Use the helpful Attachment class structure to process the file for you
-		const attachment = new AttachmentBuilder(await canvas.encode("png"), { name: "cool-image.png" });
+		const attachment = new AttachmentBuilder(await canvas.encode("png"), { name: "emoji-mosaic.png" });
 
 		await interaction.editReply({ files: [attachment] });
 	},
