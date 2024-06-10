@@ -1,0 +1,27 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.52",
+    "@types/node": "^18.0.6",
+    "color": "^4.2.3",
+    "color.js": "^1.2.0",
+    "discord.js": "^14.15.2",
+    "emoji-regex": "^10.3.0",
+    "emoji-unicode": "^2.0.1",
+    "express": "^4.19.2",
+    "poisson-disc-sampler": "^1.1.0"
+  },
+  "devDependencies": {
+    "node": "^16.20.2"
+  },
+  "description": ""
+}
