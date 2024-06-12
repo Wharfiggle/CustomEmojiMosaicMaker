@@ -16,7 +16,7 @@ const path = require("node:path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [ GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent ] });
 
 client.commands = new Collection();
 client.cooldowns = new Collection();
@@ -53,6 +53,36 @@ for(const file of eventFiles)
 	else
 		client.on(event.name, (...args) => event.execute(...args));
 }
+
+//manual commands read from new messages created while the bot is active for when slash commands aren't an option
+client.on('messageCreate', async (message) =>
+{
+	if(message.content.startsWith(".")) //manual commands must start with "."
+	{
+		//if there is a space in the message, the end of the command string is the index of the space.
+		//otherwise the command string is the rest of the string
+		const commandEndIndex = message.content.indexOf(" ", 1);
+		const command = message.content.substring(1, (commandEndIndex == -1) ? undefined : commandEndIndex);
+
+		try
+		{
+			if(command == "ping")
+				await message.reply("Pong!");
+			else if(command == "make")
+			{
+				const make = client.commands.get("make");
+				make.executeManual(message, commandEndIndex);
+			}
+			else
+				await message.reply("Command not recognized. Please make sure you type a space after the command before entering any parameters.");
+		}
+		catch(error)
+		{
+			console.error(error);
+			await message.reply({ content: "There was an error while executing this command!", ephemeral: true });
+		}
+	}
+});
 
 // Log in to Discord with your client's token
 const { token } = require("./config.json");
