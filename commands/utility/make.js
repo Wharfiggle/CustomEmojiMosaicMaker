@@ -2,7 +2,7 @@ const Color = require("color");
 const { AttachmentBuilder, SlashCommandBuilder, Colors } = require("discord.js");
 const emojiRegex = require("emoji-regex");
 const emojiUnicode = require("emoji-unicode")
-const { createCanvas, loadImage, createImage } = require("@napi-rs/canvas");
+const { createCanvas, loadImage } = require("@napi-rs/canvas");
 const poissonDiscSampler = require("poisson-disc-sampler");
 
 function drawImageRotated(context, image, x, y, width, height, degrees, scale = 1, margin = 0)
@@ -24,7 +24,7 @@ function drawImageRotated(context, image, x, y, width, height, degrees, scale = 
 	context.restore(); //restore canvas back to normal
 }
 
-let tintctx;
+let tintctx; //reuses tint context to save memory
 function tintImage(image, color, tintOpacity = 0.5)
 {
 	if(!tintctx)
@@ -105,6 +105,7 @@ function rgb(r, g, b)
 	return array;
 }*/
 
+//returns undefined if the emoji is invalid
 async function getImageFromCustomEmojiId(id)
 {
 	id = id.toString();
@@ -113,6 +114,7 @@ async function getImageFromCustomEmojiId(id)
 	catch(error) { return undefined; }
 }
 
+//returns undefined if the emoji is invalid
 async function getImageFromUnicodeEmoji(e)
 {
 	e = e.toString();
@@ -143,10 +145,10 @@ async function makeMosaic(goalImage, emojiString, replier, manual = false)
 	const marginSize = 30;
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
-	//parse emojis
+	//		parse emojis
 	
 	var emojiImages = []; //array of emoji pngs
-	var emojiAvgColors = []; //array of average colors for each emoji
+	var emojiAvgColors = []; //array of average color for each emoji
 	
 	//regex to find all custom emojis
 	//regex literals are enclosed between / and / followed by flag characters
@@ -177,6 +179,7 @@ async function makeMosaic(goalImage, emojiString, replier, manual = false)
 		emojiImages.push(img);
 		emojiAvgColors.push(getImageAverageColor(img, emojiSampleRadius));
 	}
+
 	//regex to find unicode emojis and regional indicator letters
 	//the u flag allows the regex to match unicode characters
 	const unicodeEmojis = [...emojiString.matchAll(emojiRegex()), ...emojiString.matchAll(/[🇦-🇿]/gu)];
@@ -198,7 +201,27 @@ async function makeMosaic(goalImage, emojiString, replier, manual = false)
 		return;
 	}
 
-	//draw image
+	//command has been confirmed to be valid, now show the user that it's loading
+	var msg;
+	var loading = true;
+	if(manual) //manual command
+	{
+		var str = "Please wait while your image loads";
+		msg = await replier.reply({ content: str + "...", ephemeral: true });
+		var dotNum = 0;
+		while(loading)
+		{
+			var dottedStr = str;
+			for(var i = 0; i < dotNum; i++)
+			{ dottedStr += "."; }
+			msg.edit(dottedStr);
+			dotNum = (dotNum + 1) % 4;
+		}
+	}
+	else //slash command
+		await replier.deferReply();
+
+	//		draw image
 
 	//resize image to make sure it's between minImageResolution and maxImageResolution
 	//if image is resized then, at the end, scale image back between minOutputResolution and maxOutputResolution
@@ -255,14 +278,8 @@ async function makeMosaic(goalImage, emojiString, replier, manual = false)
 	}
 	const outputRatio = outputSize.width / goalImage.width;
 	
-	const goalImageContext = createCanvas(goalImage.width, goalImage.height).getContext("2d");
+	const goalImageContext = createCanvas(goalImage.width, goalImage.height).getContext("2d"); //reference image that the mural will recreate
 	goalImageContext.drawImage(goalImage, 0, 0, goalImage.width, goalImage.height);
-	
-	var msg;
-	if(manual)
-		msg = await replier.reply({ content: "Please wait while your image loads.", ephemeral: true });
-	else
-		await replier.deferReply();
 	
 	const canvas = createCanvas(outputSize.width + marginSize * 2, outputSize.height + marginSize * 2); //output canvas
 	const context = canvas.getContext("2d");
@@ -316,11 +333,15 @@ async function makeMosaic(goalImage, emojiString, replier, manual = false)
 		//console.log(si + " / " + samples.length);
 	}
 
-	// Use the helpful Attachment class structure to process the file for you
+	//make the canvas into a png attachment
 	const attachment = new AttachmentBuilder(await canvas.encode("png"), { name: "emoji-mosaic.png" });
 
+	//finished, send final product
 	if(manual)
+	{
+		loading = false; //end loading loop
 		await msg.edit({ content:"", files: [attachment] });
+	}
 	else
 		await replier.editReply({ content:"", files: [attachment] });
 }
@@ -390,13 +411,11 @@ module.exports =
 		}
 		else //no valid emojis found
 		{
-			await message.reply( { content: "Please enter at least one valid emoji.", ephemeral: true } );
+			await message.reply( { content: "Please enter at least two valid emojis.", ephemeral: true } );
 			return;
 		}
 
 		makeMosaic(emojiImage, emojiString, message, true);
-
-		//add case that handles less than 2 emojis
 
 		/*const attachment = message.attachments.first();
 		if(attachment != undefined)
