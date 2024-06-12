@@ -4,7 +4,6 @@ const emojiRegex = require("emoji-regex");
 const emojiUnicode = require("emoji-unicode")
 const { createCanvas, loadImage } = require("@napi-rs/canvas");
 const poissonDiscSampler = require("poisson-disc-sampler");
-const wait = require('node:timers/promises').setTimeout;
 
 function drawImageRotated(context, image, x, y, width, height, degrees, scale = 1, margin = 0)
 {
