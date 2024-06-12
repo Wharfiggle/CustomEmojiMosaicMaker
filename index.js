@@ -71,7 +71,7 @@ client.on('messageCreate', async (message) =>
 			else if(command == "make")
 			{
 				const make = client.commands.get("make");
-				make.executeManual(message, commandEndIndex);
+				await make.executeManual(message, commandEndIndex);
 			}
 			else
 				await message.reply("Command not recognized. Please make sure you type a space after the command before entering any parameters.");

@@ -4,6 +4,7 @@ const emojiRegex = require("emoji-regex");
 const emojiUnicode = require("emoji-unicode")
 const { createCanvas, loadImage } = require("@napi-rs/canvas");
 const poissonDiscSampler = require("poisson-disc-sampler");
+const wait = require('node:timers/promises').setTimeout;
 
 function drawImageRotated(context, image, x, y, width, height, degrees, scale = 1, margin = 0)
 {
@@ -203,21 +204,8 @@ async function makeMosaic(goalImage, emojiString, replier, manual = false)
 
 	//command has been confirmed to be valid, now show the user that it's loading
 	var msg;
-	var loading = true;
 	if(manual) //manual command
-	{
-		var str = "Please wait while your image loads";
-		msg = await replier.reply({ content: str + "...", ephemeral: true });
-		var dotNum = 0;
-		while(loading)
-		{
-			var dottedStr = str;
-			for(var i = 0; i < dotNum; i++)
-			{ dottedStr += "."; }
-			msg.edit(dottedStr);
-			dotNum = (dotNum + 1) % 4;
-		}
-	}
+		msg = await replier.reply({ content: "Please wait while your image loads...", ephemeral: true });
 	else //slash command
 		await replier.deferReply();
 
@@ -363,8 +351,7 @@ module.exports =
 	{
 		const emojiString = interaction.options.getString("emojis");
 		const userImage = await loadImage(interaction.options.getAttachment("image").url);
-
-		makeMosaic(userImage, emojiString, interaction, false);
+		await makeMosaic(userImage, emojiString, interaction, false);
 	},
 	async executeManual(message, commandEndIndex) //manual message reading implementation
 	{
@@ -415,7 +402,7 @@ module.exports =
 			return;
 		}
 
-		makeMosaic(emojiImage, emojiString, message, true);
+		await makeMosaic(emojiImage, emojiString, message, true);
 
 		/*const attachment = message.attachments.first();
 		if(attachment != undefined)
