@@ -136,7 +136,8 @@ async function makeMosaic(goalImage, emojiString, replier, manual = false)
 	const sampleRadius = 8; //performance is better with larger radius
 	const colorSampleSize = 3; //performance is better with smaller sample size
 	const emojiSize = 30; //performance is better with smaller emoji size
-	const tintStrength = 0;
+	const tintMin = 0;
+	const tintMax = 0.9;
 	const minImageResolution = 1000; //performance is better with lower resolution
 	const maxImageResolution = 2000;
 	const minOutputResolution = 500;
@@ -180,9 +181,18 @@ async function makeMosaic(goalImage, emojiString, replier, manual = false)
 		emojiAvgColors.push(getImageAverageColor(img, emojiSampleRadius));
 	}
 
-	//regex to find unicode emojis and regional indicator letters
+	//regex to find unicode emojis, store all of the results in an array
 	//the u flag allows the regex to match unicode characters
-	const unicodeEmojis = [...emojiString.matchAll(emojiRegex()), ...emojiString.matchAll(/[🇦-🇿]/gu)];
+	var unicodeEmojis = [...emojiString.matchAll(emojiRegex())];
+	//remove all of the results from the original string so no repeats can be found by the regional letters, since flag emojis are made up of regional letters
+	for(var e of unicodeEmojis)
+	{
+		e = e.toString();
+		const strInd = emojiString.indexOf(e);
+		emojiString = emojiString.substring(0, strInd) + emojiString.substring(strInd + e.length);
+	}
+	//add any remaining regional letters found to array
+	unicodeEmojis = [...unicodeEmojis, ...emojiString.matchAll(/[🇦-🇿]/gu)];
 	for(var e of unicodeEmojis)
 	{
 		const img = await getImageFromUnicodeEmoji(e);
@@ -312,7 +322,7 @@ async function makeMosaic(goalImage, emojiString, replier, manual = false)
 		//tint gets stronger when color is farther from emoji's average color and when color is closer to white or black
 		const emojiColorDif = Math.abs((r - emojiAvgColors[rn][0] + g - emojiAvgColors[rn][1] + b - emojiAvgColors[rn][2])) / 255;
 		const valueIntensity = Math.abs((r - 127.5 + g - 127.5 + b - 127.5)) / 127.5;
-		var tint = tintStrength + (1 - tintStrength) * (emojiColorDif * 3/4 + valueIntensity * 1/4);
+		var tint = Math.min(tintMax, tintMin + (1 - tintMin) * (emojiColorDif * 3/4 + valueIntensity * 1/4));
 		//draw emoji with random rotation at sample location with sampleColor as tint color and tint as tint opacity
 		const emojiImage = tintImage(emojiImages[rn], sampleColor, tint);
 		drawImageRotated(context, emojiImage, s[0] - emojiSize / 2, s[1] - emojiSize / 2, emojiSize, emojiSize, Math.random() * 360, outputRatio, marginSize);
