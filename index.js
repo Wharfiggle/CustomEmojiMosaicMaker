@@ -62,7 +62,7 @@ client.on('messageCreate', async (message) =>
 		//if there is a space in the message, the end of the command string is the index of the space.
 		//otherwise the command string is the rest of the string
 		const commandEndIndex = message.content.indexOf(" ", 1);
-		const command = message.content.substring(1, (commandEndIndex == -1) ? undefined : commandEndIndex);
+		const command = message.content.substring(1, (commandEndIndex == -1) ? undefined : commandEndIndex).toLowerCase();
 
 		try
 		{
