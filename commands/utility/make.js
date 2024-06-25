@@ -364,7 +364,7 @@ module.exports =
 	},
 	async executeManual(message, commandEndIndex) //manual message reading implementation
 	{
-		if(commandEndIndex == undefined) //nothing typed after command
+		if(commandEndIndex == -1) //nothing typed after command
 		{
 			await message.reply( { content: "Please enter at least two valid emojis.", ephemeral: true } );
 			return;
