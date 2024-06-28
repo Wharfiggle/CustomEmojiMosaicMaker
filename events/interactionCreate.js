@@ -12,7 +12,7 @@ module.exports =
 
 		if(!command)
 		{
-			console.error("No command matching ${interaction.commandName} was found.");
+			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
 		}
 
