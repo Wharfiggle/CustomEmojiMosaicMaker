@@ -57,7 +57,7 @@ for(const file of eventFiles)
 //manual commands read from new messages created while the bot is active for when slash commands aren't an option
 client.on('messageCreate', async (message) =>
 {
-	if(message.content.startsWith(".")) //manual commands must start with "."
+	if(message.content.startsWith("%")) //manual commands must start with "%"
 	{
 		//if there is a space in the message, the end of the command string is the index of the space.
 		//otherwise the command string is the rest of the string
@@ -66,6 +66,8 @@ client.on('messageCreate', async (message) =>
 
 		try
 		{
+			console.log(`Command \"${command}\" manually called by user \"${message.author.username}\" (user id: ${message.author})`);
+
 			if(command == "ping")
 				await message.reply("Pong!");
 			else if(command == "make")

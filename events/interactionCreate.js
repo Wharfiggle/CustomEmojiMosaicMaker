@@ -16,6 +16,8 @@ module.exports =
 			return;
 		}
 
+		console.log(`Command \"${interaction.commandName}\" called to execute by user \"${interaction.user.username}\" (user id: ${interaction.user})`);
+
 		//cooldowns
 		
 		const { cooldowns } = interaction.client;
