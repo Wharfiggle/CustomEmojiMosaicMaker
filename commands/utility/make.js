@@ -347,7 +347,7 @@ module.exports =
 {
 	publicCommand: true, //WILL BE DEPLOYED GLOBALLY
 	cooldown: 10,
-	data: new SlashCommandBuilder().setName("make").setDescription("Makes a mosaic of the specified image given a list of emojis.")
+	/*data: new SlashCommandBuilder().setName("make").setDescription("Makes a mosaic of the specified image given a list of emojis.")
 		.addAttachmentOption(option =>
 			option.setName("image")
 				.setDescription("The image to make a mosaic of.")
@@ -355,7 +355,15 @@ module.exports =
 		.addStringOption(option =>
 			option.setName("emojis")
 				.setDescription("The non-gif emojis to use in the mosaic.")
-				.setRequired(true)),
+				.setRequired(true)),*/
+	data:
+	{
+		name: "make",
+		description: "Makes a mosaic of the specified image given a list of emojis.",
+		options:[{"name":"image","description":"The image to make a mosaic of.","required":true,"type":11},{"type":3,"name":"emojis","description":"The non-gif emojis to use in the mosaic.","required":true}],
+		integration_types: [0, 1],
+		contexts: [0, 1, 2]
+	},
 	async execute(interaction) //slash command implementation
 	{
 		const emojiString = interaction.options.getString("emojis");

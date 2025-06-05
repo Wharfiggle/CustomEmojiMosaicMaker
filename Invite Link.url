@@ -2,4 +2,5 @@
 Prop3=19,11
 [InternetShortcut]
 IDList=
-URL=https://discord.com/oauth2/authorize?client_id=1244374770775101613&permissions=2147781632&integration_type=0&scope=bot
+URL=https://discord.com/oauth2/authorize?client_id=1244374770775101613
+HotKey=0

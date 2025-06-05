@@ -38,6 +38,12 @@ for(const folder of commandFolders) //iterate through each folder in commands fo
 		else
 			//			V backticks, not apostrophes. Can only do string interpolation with backticks
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+
+		/*if(command.data.name == "make")
+		{
+			console.log("printing slash command generated data for use in converting to user install command");
+			console.log(JSON.stringify(command.data));
+		}*/
 	}
 }
 
