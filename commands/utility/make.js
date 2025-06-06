@@ -118,14 +118,17 @@ async function getImageFromCustomEmojiId(id)
 async function getImageFromUnicodeEmoji(e)
 {
 	e = e.toString();
-	const id = emojiUnicode(e).replaceAll(/\s/g, "-"); //replace spaces with dashes for valid url
+	var id = emojiUnicode(e).replaceAll(/\s/g, "-"); //replace spaces with dashes for valid url
+	//account for mistakes in emojiUnicode database
+	if(id.substring(5) == "fe0f")
+		id = id.substring(0, 4);
+	//if(id == "26f9-fe0f")
+	//	id = "26f9";
 	try
 	{ return await loadImage("https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/" + id + ".png"); }
 	catch(error)
 	{
-		try
-		{ return await loadImage("https://twemoji.maxcdn.com/v/latest/72x72/" + id + ".png"); }
-		catch(error) { return undefined; }
+		return undefined;
 	}
 }
 
@@ -398,7 +401,7 @@ module.exports =
 			emojiImage = await getImageFromCustomEmojiId(firstCustom);
 			if(emojiImage == undefined)
 			{
-				await replier.reply({ content: "Invalid custom emoji.", ephemeral: true });
+				await message.reply({ content: "Invalid custom emoji.", ephemeral: true });
 				return;
 			}
 			emojiString = emojiString.substring(firstCustom.toString().length);
@@ -408,7 +411,7 @@ module.exports =
 			emojiImage = await getImageFromUnicodeEmoji(firstUnicode);
 			if(emojiImage == undefined)
 			{
-				await replier.reply({ content: e + " was not found in the database.", ephemeral: true });
+				await message.reply({ content: firstUnicode + " was not found in the database.", ephemeral: true });
 				return;
 			}
 			emojiString = emojiString.substring(firstUnicode.toString().length);
