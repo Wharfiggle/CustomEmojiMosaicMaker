@@ -1,5 +1,5 @@
 const Color = require("color");
-const { AttachmentBuilder, SlashCommandBuilder, Colors } = require("discord.js");
+const { AttachmentBuilder } = require("discord.js");
 const emojiRegex = require("emoji-regex");
 const emojiUnicode = require("emoji-unicode")
 const { createCanvas, loadImage } = require("@napi-rs/canvas");
