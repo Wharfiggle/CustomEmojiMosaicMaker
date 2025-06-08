@@ -63,12 +63,13 @@ for(const file of eventFiles)
 //manual commands read from new messages created while the bot is active for when slash commands aren't an option
 client.on('messageCreate', async (message) =>
 {
-	if(message.content.startsWith("%")) //manual commands must start with "%"
+	const prefix = "cemm ";
+	if(message.content.startsWith(prefix)) //manual commands must start with prefix
 	{
 		//if there is a space in the message, the end of the command string is the index of the space.
 		//otherwise the command string is the rest of the string
-		const commandEndIndex = message.content.indexOf(" ", 1);
-		const command = message.content.substring(1, (commandEndIndex == -1) ? undefined : commandEndIndex).toLowerCase();
+		const commandEndIndex = message.content.indexOf(" ", prefix.length);
+		const command = message.content.substring(prefix.length, (commandEndIndex == -1) ? undefined : commandEndIndex).toLowerCase();
 
 		try
 		{
