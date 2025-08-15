@@ -64,7 +64,7 @@ for(const file of eventFiles)
 client.on('messageCreate', async (message) =>
 {
 	const prefix = "cemm ";
-	if(message.content.startsWith(prefix)) //manual commands must start with prefix
+	if(message.content.toLowerCase().startsWith(prefix)) //manual commands must start with prefix
 	{
 		//if there is a space in the message, the end of the command string is the index of the space.
 		//otherwise the command string is the rest of the string
